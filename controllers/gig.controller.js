@@ -8,6 +8,8 @@ export const createGig = async (req, res, next) => {
   const newGig = new Gig({
     userId: req.userId,
     ...req.body,
+    // Ensure subcategory is properly set
+    subcategory: req.body.subcategory || "",
   });
 
   try {
@@ -17,6 +19,7 @@ export const createGig = async (req, res, next) => {
     next(err);
   }
 };
+
 export const deleteGig = async (req, res, next) => {
   try {
     const gig = await Gig.findById(req.params.id);
@@ -29,6 +32,7 @@ export const deleteGig = async (req, res, next) => {
     next(err);
   }
 };
+
 export const getGig = async (req, res, next) => {
   try {
     const gig = await Gig.findById(req.params.id);
@@ -38,11 +42,16 @@ export const getGig = async (req, res, next) => {
     next(err);
   }
 };
+
 export const getGigs = async (req, res, next) => {
   const q = req.query;
   const filters = {
     ...(q.userId && { userId: q.userId }),
     ...(q.cat && { cat: q.cat }),
+    // Improved subcategory filtering - exact match with the stored value
+    ...(q.sub && { 
+      subcategory: q.sub.replace(/-/g, ' ')
+    }),
     ...((q.min || q.max) && {
       price: {
         ...(q.min && { $gt: q.min }),
@@ -51,6 +60,7 @@ export const getGigs = async (req, res, next) => {
     }),
     ...(q.search && { title: { $regex: q.search, $options: "i" } }),
   };
+  
   try {
     const gigs = await Gig.find(filters).sort({ [q.sort]: -1 });
     res.status(200).send(gigs);
