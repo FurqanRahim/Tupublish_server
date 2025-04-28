@@ -27,6 +27,10 @@ const GigSchema = new Schema(
       type: String,
       required: true,
     },
+    subcategory: {
+      type: String,
+      required: true, // Changed to required to ensure proper filtering
+    },
     price: {
       type: Number,
       required: true,
@@ -38,10 +42,6 @@ const GigSchema = new Schema(
     images: {
       type: [String],
       required: false,
-    },
-    userId: {
-      type: String,
-      required: true,
     },
     shortTitle: {
       type: String,
